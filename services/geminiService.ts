@@ -5,8 +5,11 @@ import { BookProject, GenerationSettings, ArtStyle } from "../types";
 declare const process: { env: { API_KEY: string } };
 
 // Initialize Gemini Client
-// Note: process.env.API_KEY is assumed to be available in the environment.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Note: process.env.API_KEY is injected by Vite during build.
+// We provide a fallback to empty string to prevent the constructor from throwing immediately 
+// if the key is missing during initialization. The error will occur when making a call instead.
+const apiKey = process.env.API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 const SYSTEM_INSTRUCTION_ARCHITECT = `
 You are the "Story Architect Agent" of the Genesis Ebook System. 
@@ -17,6 +20,10 @@ Ensure the image prompts describe lighting, camera angle, character consistency,
 `;
 
 export const generateBookStructure = async (settings: GenerationSettings): Promise<Partial<BookProject>> => {
+  if (!apiKey) {
+    throw new Error("API Key is missing. Please configure your environment variables.");
+  }
+  
   const modelId = "gemini-2.5-flash"; // Optimized for text and logic
 
   let specificInstructions = "";
@@ -139,6 +146,7 @@ export const generateBookStructure = async (settings: GenerationSettings): Promi
 };
 
 export const generateIllustration = async (imagePrompt: string, style: ArtStyle): Promise<string | null> => {
+  if (!apiKey) return null;
   const modelId = "gemini-2.5-flash-image"; // Optimized for image generation
 
   try {
@@ -178,6 +186,7 @@ export const generateRefinedImage = async (
       characterDescription?: string
   }
 ): Promise<string | null> => {
+  if (!apiKey) return null;
   const modelId = "gemini-2.5-flash-image";
 
   let styleInstruction = `Style: ${params.styleA}`;
