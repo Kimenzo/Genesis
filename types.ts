@@ -6,7 +6,9 @@ export enum AppMode {
   VISUAL_STUDIO = 'VISUAL_STUDIO',
   LAYOUT_LAB = 'LAYOUT_LAB',
   EXPORT = 'EXPORT',
-  SETTINGS = 'SETTINGS'
+  SETTINGS = 'SETTINGS',
+  PRICING = 'PRICING',
+  GAMIFICATION = 'GAMIFICATION'
 }
 
 export enum ArtStyle {
@@ -25,6 +27,38 @@ export enum BookTone {
   INSPIRATIONAL = 'Inspirational',
   EDUCATIONAL = 'Educational',
   DRAMATIC = 'Dramatic'
+}
+
+export enum UserTier {
+  SPARK = 'Spark',      // Free
+  CREATOR = 'Creator',  // $19.99
+  STUDIO = 'Studio',    // $59.99
+  EMPIRE = 'Empire'     // $199.99
+}
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string; // Lucide icon name
+  unlocked: boolean;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  xpReward: number;
+  completed: boolean;
+}
+
+export interface GamificationState {
+  level: number;
+  levelTitle: string; // e.g. "Rising Author"
+  currentXP: number;
+  nextLevelXP: number;
+  badges: Badge[];
+  dailyChallenges: Challenge[];
+  booksCreatedCount: number;
 }
 
 export interface Choice {
