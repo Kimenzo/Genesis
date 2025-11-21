@@ -1,6 +1,8 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { BookProject, GenerationSettings, ArtStyle } from "../types";
+
+// Declare process for Vite build compatibility
+declare const process: { env: { API_KEY: string } };
 
 // Initialize Gemini Client
 // Note: process.env.API_KEY is assumed to be available in the environment.
