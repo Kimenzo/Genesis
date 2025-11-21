@@ -11,7 +11,8 @@ import {
   RefreshCw,
   Sliders,
   Sun,
-  Move
+  Move,
+  Lightbulb
 } from 'lucide-react';
 import { generateRefinedImage } from '../services/geminiService';
 
@@ -41,10 +42,16 @@ const VisualStudio: React.FC<VisualStudioProps> = ({ project }) => {
   const styles = Object.values(ArtStyle);
   
   // Presets
-  const lightingOptions = ['Natural Daylight', 'Golden Hour', 'Cinematic Noir', 'Neon Cyberpunk', 'Soft Candlelight', 'Studio High-Key'];
-  const cameraOptions = ['Eye Level', 'Bird\'s Eye View', 'Worm\'s Eye View', 'Dutch Angle', 'Macro Close-up', 'Wide Angle'];
-  const expressions = ['Neutral', 'Happy', 'Sad', 'Angry', 'Surprised', 'Determined', 'Fearful'];
-  const poses = ['Standing', 'Sitting', 'Running', 'Jumping', 'Thinking', 'Fighting Stance'];
+  const lightingGroups = {
+    'Natural': ['Natural Daylight', 'Golden Hour', 'Soft Candlelight', 'Ethereal Moonlight', 'Overcast Sky'],
+    'Cinematic': ['Cinematic Noir', 'Teal & Orange', 'Rembrandt', 'Dramatic Shadows', 'God Rays'],
+    'Artificial': ['Neon Cyberpunk', 'Studio High-Key', 'Bioluminescent', 'Hard Flash', 'Stage Lighting'],
+    'Artistic': ['Volumetric Fog', 'Silhouette', 'Dreamy Haze', 'Double Exposure']
+  };
+
+  const cameraOptions = ['Eye Level', 'Bird\'s Eye View', 'Worm\'s Eye View', 'Dutch Angle', 'Macro Close-up', 'Wide Angle', 'Over-the-shoulder'];
+  const expressions = ['Neutral', 'Happy', 'Sad', 'Angry', 'Surprised', 'Determined', 'Fearful', 'Mischievous'];
+  const poses = ['Standing', 'Sitting', 'Running', 'Jumping', 'Thinking', 'Fighting Stance', 'Dancing', 'Floating'];
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -179,23 +186,33 @@ const VisualStudio: React.FC<VisualStudioProps> = ({ project }) => {
                 <div className="space-y-6 animate-fadeIn">
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-cocoa-light uppercase flex items-center gap-2">
-                            <Camera className="w-4 h-4" /> Composition
+                            <Lightbulb className="w-4 h-4" /> Lighting Style
                         </label>
                          <div className="grid grid-cols-1 gap-4">
                              <select 
                                 value={settings.lighting}
                                 onChange={(e) => setSettings({...settings, lighting: e.target.value})}
-                                className="w-full bg-cream-base border border-peach-soft rounded-xl p-3 text-sm"
+                                className="w-full bg-cream-base border border-peach-soft rounded-xl p-3 text-sm font-body"
                             >
-                                {lightingOptions.map(l => <option key={l} value={l}>{l}</option>)}
+                                {Object.entries(lightingGroups).map(([group, options]) => (
+                                    <optgroup key={group} label={group}>
+                                        {options.map(l => <option key={l} value={l}>{l}</option>)}
+                                    </optgroup>
+                                ))}
                             </select>
-                             <select 
-                                value={settings.cameraAngle}
-                                onChange={(e) => setSettings({...settings, cameraAngle: e.target.value})}
-                                className="w-full bg-cream-base border border-peach-soft rounded-xl p-3 text-sm"
-                            >
-                                {cameraOptions.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
+                            
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-cocoa-light uppercase flex items-center gap-2">
+                                    <Camera className="w-4 h-4" /> Camera Angle
+                                </label>
+                                <select 
+                                    value={settings.cameraAngle}
+                                    onChange={(e) => setSettings({...settings, cameraAngle: e.target.value})}
+                                    className="w-full bg-cream-base border border-peach-soft rounded-xl p-3 text-sm"
+                                >
+                                    {cameraOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
