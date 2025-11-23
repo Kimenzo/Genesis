@@ -26,7 +26,7 @@ const SmartEditor: React.FC<SmartEditorProps> = ({ project, onUpdateProject }) =
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
 
-    const allPages = project.chapters.flatMap(c => c.pages);
+    const allPages = project.chapters?.flatMap(c => c.pages || []) || [];
     const activePage = allPages[activePageIndex];
     const totalPages = allPages.length;
 
