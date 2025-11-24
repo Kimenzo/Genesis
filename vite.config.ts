@@ -7,8 +7,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Polyfill process.env.API_KEY for the Gemini Service
-      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      // Polyfill process.env.VITE_GEMINI_API_KEY for the Gemini Service
+      'process.env.VITE_GEMINI_API_KEY': JSON.stringify(env.VITE_GEMINI_API_KEY),
+      // Polyfill process.env.VITE_BYTEZ_API_KEY for the Bytez Service
+      'process.env.VITE_BYTEZ_API_KEY': JSON.stringify(env.VITE_BYTEZ_API_KEY),
       // Polyfill process.env.PAYSTACK_PUBLIC_KEY for the Paystack Service
       'process.env.PAYSTACK_PUBLIC_KEY': JSON.stringify(env.PAYSTACK_PUBLIC_KEY || '')
     }
