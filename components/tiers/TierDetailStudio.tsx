@@ -359,7 +359,7 @@ const faqs: FAQ[] = [
 ];
 
 const trustBadges = [
-  { icon: Shield, label: '14-Day Free Trial', detail: 'Full access, no limits' },
+  { icon: Shield, label: 'Full Feature Access', detail: 'All features included' },
   { icon: Award, label: '30-Day Guarantee', detail: 'Complete refund policy' },
   { icon: Users, label: '5 Team Seats', detail: 'Collaborate together' },
   { icon: Clock, label: '4hr Support', detail: 'Premium response time' }
@@ -749,7 +749,7 @@ const TierDetailStudio: React.FC = () => {
 
         <div className="mt-12 text-center">
           <p className="text-charcoal-soft/70 max-w-2xl mx-auto">
-            Every Studio subscription includes a 14-day free trial with full access to all features. Your team can test everything before committing. Plus, our 30-day money-back guarantee means zero risk—if Studio doesn't transform your workflow, we'll refund you completely.
+            Every Studio subscription includes full access to all features. Our 30-day money-back guarantee means zero risk—if Studio doesn't transform your workflow, we'll refund you completely.
           </p>
         </div>
       </SectionWrapper>
@@ -771,7 +771,7 @@ const TierDetailStudio: React.FC = () => {
         headline="Ready to Scale Your Content Production?"
         onStartTrial={handleStartTrial}
         onContactSales={handleContactSales}
-        ctaText={isProcessing ? 'Processing...' : 'Start 14-Day Free Trial'}
+        ctaText={isProcessing ? 'Processing...' : 'Get Started'}
       />
 
       {/* Footer */}
