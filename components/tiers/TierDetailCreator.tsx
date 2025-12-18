@@ -328,7 +328,7 @@ const faqs: FAQ[] = [
 ];
 
 const trustBadges = [
-  { icon: Shield, label: '14-Day Free Trial', detail: 'No credit card required' },
+  { icon: Shield, label: 'Instant Access', detail: 'Get started immediately' },
   { icon: Award, label: '30-Day Guarantee', detail: 'Full money-back, no questions' },
   { icon: Lock, label: 'Commercial License', detail: 'Sell everywhere' },
   { icon: Clock, label: '24hr Support', detail: 'Priority response' }
@@ -565,7 +565,7 @@ const TierDetailCreator: React.FC = () => {
 
         <div className="mt-12 text-center">
           <p className="text-charcoal-soft/70 max-w-2xl mx-auto">
-            Start your 14-day free trial with no credit card required. If you decide Creator isn't for you within 30 days of subscribing, we'll refund you completely—no questions asked. You can also downgrade or cancel anytime from your account settings.
+            Get started with Creator today. If you decide Creator isn't for you within 30 days of subscribing, we'll refund you completely—no questions asked. You can also downgrade or cancel anytime from your account settings.
           </p>
         </div>
       </SectionWrapper>

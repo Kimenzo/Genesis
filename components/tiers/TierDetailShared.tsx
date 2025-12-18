@@ -96,7 +96,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   trustLogos,
   onStartTrial,
   onDownloadPDF,
-  ctaText = 'Start Free Trial',
+  ctaText = 'Get Started',
   secondaryCtaText = 'Download Pricing PDF',
   children
 }) => (
@@ -703,7 +703,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({
   headline,
   onStartTrial,
   onContactSales,
-  ctaText = 'Start Your 14-Day Free Trial'
+  ctaText = 'Get Started Now'
 }) => (
   <section className={`py-12 md:py-20 bg-gradient-to-br ${tier.gradient}`}>
     <div className="container mx-auto px-[var(--ob-container-padding)]">
