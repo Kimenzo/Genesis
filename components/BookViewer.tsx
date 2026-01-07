@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { BookProject, Page } from '../types';
 import { X, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
@@ -8,7 +8,7 @@ interface BookViewerProps {
 }
 
 const BookViewer: React.FC<BookViewerProps> = ({ project, onClose }) => {
-    const allPages = project.chapters.flatMap(c => c.pages);
+    const allPages = useMemo(() => project.chapters.flatMap(c => c.pages), [project.chapters]);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
     const currentPage = allPages[currentPageIndex];
 

@@ -126,26 +126,26 @@ const App: React.FC = () => {
         createdAt: new Date()
       };
 
-      // 2. Generate Illustrations for ALL pages
-      const totalPages = newProject.chapters.flatMap(c => c.pages).length;
+      // 2. Generate Illustrations for ALL pages with controlled concurrency
+      const allPages = newProject.chapters.flatMap(c => c.pages);
+      const totalPages = allPages.length;
+      
+      // Process images in batches of 3 to balance speed and rate limiting
+      const batchSize = 3;
       let processedPages = 0;
-
-      for (const chapter of newProject.chapters) {
-        for (const page of chapter.pages) {
-          processedPages++;
-          const pageProgress = 20 + ((processedPages / totalPages) * 60); // 20-80%
-          setGenerationProgress(pageProgress);
-          setGenerationStatus(`Painting page ${processedPages} of ${totalPages}...`);
-
+      
+      for (let i = 0; i < allPages.length; i += batchSize) {
+        const batch = allPages.slice(i, i + batchSize);
+        
+        // Generate images for this batch in parallel
+        await Promise.all(batch.map(async (page) => {
           if (page.imagePrompt) {
             let attempts = 0;
             let success = false;
+            
             while (attempts < 3 && !success) {
               try {
-                // Add a small delay to prevent rate limiting
-                if (processedPages > 1) await new Promise(r => setTimeout(r, 1000));
-
-                const imageUrl = await generateIllustration(page.imagePrompt, settings.style);
+                const imageUrl = await generateIllustration(page.imagePrompt, settings.style, currentUserTier);
                 if (imageUrl) {
                   page.imageUrl = imageUrl;
                   success = true;
@@ -153,10 +153,20 @@ const App: React.FC = () => {
               } catch (err) {
                 attempts++;
                 console.warn(`Failed to generate image for page ${page.pageNumber} (Attempt ${attempts}/3)`, err);
-                if (attempts < 3) await new Promise(r => setTimeout(r, 2000)); // Wait longer before retry
+                if (attempts < 3) await new Promise(r => setTimeout(r, 1000)); // Wait before retry
               }
             }
           }
+          
+          processedPages++;
+          const pageProgress = 20 + ((processedPages / totalPages) * 60); // 20-80%
+          setGenerationProgress(pageProgress);
+          setGenerationStatus(`Painting page ${processedPages} of ${totalPages}...`);
+        }));
+        
+        // Small delay between batches to respect rate limits
+        if (i + batchSize < allPages.length) {
+          await new Promise(r => setTimeout(r, 500));
         }
       }
 

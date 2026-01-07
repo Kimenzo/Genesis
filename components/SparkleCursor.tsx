@@ -10,31 +10,47 @@ interface Sparkle {
 
 const SparkleCursor: React.FC = () => {
     const [sparkles, setSparkles] = useState<Sparkle[]>([]);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const lastSparkleTime = useRef<number>(0);
 
     useEffect(() => {
+        let lastMousePos = { x: 0, y: 0 };
+        let hasNewMousePos = false;
+        
         const handleMouseMove = (e: MouseEvent) => {
-            setMousePos({ x: e.clientX, y: e.clientY });
-
-            if (Math.random() > 0.8) { // Only add sparkles occasionally to avoid lag
-                addSparkle(e.clientX, e.clientY);
-            }
+            lastMousePos = { x: e.clientX, y: e.clientY };
+            hasNewMousePos = true;
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
+        // Animation loop with requestAnimationFrame
+        let animationFrameId: number;
+        const animate = (currentTime: number) => {
+            // Add sparkles occasionally (throttled to ~50ms)
+            if (hasNewMousePos && currentTime - lastSparkleTime.current > 50 && Math.random() > 0.7) {
+                addSparkle(lastMousePos.x, lastMousePos.y);
+                lastSparkleTime.current = currentTime;
+                hasNewMousePos = false;
+            }
+            
+            // Update existing sparkles
+            setSparkles(prev => prev
+                .filter(s => s.size > 0.5)
+                .map(s => ({
+                    ...s,
+                    y: s.y + 1, // Gravity
+                    size: s.size - 0.2 // Fade out
+                }))
+            );
+            
+            animationFrameId = requestAnimationFrame(animate);
+        };
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setSparkles(prev => prev.filter(s => s.size > 0.5).map(s => ({
-                ...s,
-                y: s.y + 1, // Gravity
-                size: s.size - 0.2 // Fade out
-            })));
-        }, 50);
-
-        return () => clearInterval(interval);
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
+        animationFrameId = requestAnimationFrame(animate);
+        
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            cancelAnimationFrame(animationFrameId);
+        };
     }, []);
 
     const addSparkle = (x: number, y: number) => {

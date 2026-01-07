@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { BookProject, Page, UserTier } from '../types';
 import {
     ChevronLeft,
@@ -50,25 +50,25 @@ const SmartEditor: React.FC<SmartEditorProps> = ({ project, onUpdateProject, use
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const suggestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const allPages = project.chapters?.flatMap(c => c.pages || []) || [];
+    const allPages = useMemo(() => project.chapters?.flatMap(c => c.pages || []) || [], [project.chapters]);
     const activePage = allPages[activePageIndex];
     const totalPages = allPages.length;
 
     const handleTextChange = (text: string) => {
-        const newProject = JSON.parse(JSON.stringify(project)) as BookProject;
+        const newProject = structuredClone(project);
         newProject.chapters.forEach(ch => {
             const page = ch.pages.find(p => p.pageNumber === activePage.pageNumber);
             if (page) page.text = text;
         });
         onUpdateProject(newProject);
 
-        // Feature #3: Trigger suggestions with debounce
+        // Feature #3: Trigger suggestions with debounce (increased to 4s to reduce API calls)
         if (suggestionTimeoutRef.current) {
             clearTimeout(suggestionTimeoutRef.current);
         }
         suggestionTimeoutRef.current = setTimeout(() => {
             fetchWritingSuggestions(text);
-        }, 2000); // Wait 2s after user stops typing
+        }, 4000); // Wait 4s after user stops typing
     };
 
     // Feature #1: AI Improve Handler
