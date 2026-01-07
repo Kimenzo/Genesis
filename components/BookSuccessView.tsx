@@ -13,6 +13,12 @@ interface BookSuccessViewProps {
 const BookSuccessView: React.FC<BookSuccessViewProps> = ({ project, onNavigate }) => {
     const [isViewerOpen, setIsViewerOpen] = useState(false);
     const [confetti, setConfetti] = useState<Particle[]>([]);
+    
+    // Memoize page count calculation
+    const pageCount = useMemo(() => 
+        project.chapters.flatMap(c => c.pages).length,
+        [project.chapters]
+    );
 
     // Generate celebration confetti on mount using requestAnimationFrame
     useEffect(() => {
@@ -199,7 +205,7 @@ const BookSuccessView: React.FC<BookSuccessViewProps> = ({ project, onNavigate }
                                             </span>
                                         </div>
                                         <p className="text-sm text-cocoa-light font-body">
-                                            📖 {useMemo(() => project.chapters.flatMap(c => c.pages).length, [project.chapters])} pages • 👥 {project.targetAudience}
+                                            📖 {pageCount} pages • 👥 {project.targetAudience}
                                         </p>
                                     </div>
                                 </div>
