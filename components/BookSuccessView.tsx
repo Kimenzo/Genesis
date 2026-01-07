@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { AppMode, BookProject } from '../types';
 import { Eye, Edit3, Download, Share2, Sparkles, Gift, PartyPopper } from 'lucide-react';
@@ -14,24 +14,33 @@ const BookSuccessView: React.FC<BookSuccessViewProps> = ({ project, onNavigate }
     const [isViewerOpen, setIsViewerOpen] = useState(false);
     const [confetti, setConfetti] = useState<Particle[]>([]);
 
-    // Generate celebration confetti on mount
+    // Generate celebration confetti on mount using requestAnimationFrame
     useEffect(() => {
         const particles = generateParticles(50, window.innerWidth / 2, window.innerHeight / 2, 400, 'confetti');
         setConfetti(particles);
 
-        // Update confetti animation
-        const interval = setInterval(() => {
-            setConfetti(prev =>
-                prev
+        // Update confetti animation with requestAnimationFrame
+        let animationFrameId: number;
+        const animate = () => {
+            setConfetti(prev => {
+                const updated = prev
                     .map(p => ({
                         ...updateParticle(p, 1.5),
                         velocityY: p.velocityY + 0.1, // Add gravity
                     }))
-                    .filter(p => p.y < window.innerHeight && p.opacity > 0)
-            );
-        }, 50);
-
-        return () => clearInterval(interval);
+                    .filter(p => p.y < window.innerHeight && p.opacity > 0);
+                
+                // Continue animation if there are particles remaining
+                if (updated.length > 0) {
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+                
+                return updated;
+            });
+        };
+        
+        animationFrameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animationFrameId);
     }, []);
 
     const handleDownload = () => {
@@ -190,7 +199,7 @@ const BookSuccessView: React.FC<BookSuccessViewProps> = ({ project, onNavigate }
                                             </span>
                                         </div>
                                         <p className="text-sm text-cocoa-light font-body">
-                                            📖 {project.chapters.flatMap(c => c.pages).length} pages • 👥 {project.targetAudience}
+                                            📖 {useMemo(() => project.chapters.flatMap(c => c.pages).length, [project.chapters])} pages • 👥 {project.targetAudience}
                                         </p>
                                     </div>
                                 </div>
