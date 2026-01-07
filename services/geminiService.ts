@@ -20,18 +20,41 @@ if (!bytezApiKey) {
 
 const bytez = new Bytez(bytezApiKey);
 
-// Rate limiter to reduce API calls and token usage
+// Rate limiter to reduce API calls and token usage - supports concurrent requests with individual tracking
 const rateLimiter = {
-  lastCallTime: 0,
-  minDelay: 1000, // Reduced delay for Grok
+  requestTimestamps: [] as number[],
+  maxRequestsPerSecond: 5, // Allow up to 5 concurrent requests per second
+  minDelay: 200, // Minimum delay between individual requests (200ms)
+  
   async throttle() {
     const now = Date.now();
-    const timeSinceLastCall = now - this.lastCallTime;
-    if (timeSinceLastCall < this.minDelay) {
-      const waitTime = this.minDelay - timeSinceLastCall;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+    const oneSecondAgo = now - 1000;
+    
+    // Remove timestamps older than 1 second
+    this.requestTimestamps = this.requestTimestamps.filter(t => t > oneSecondAgo);
+    
+    // If we've hit the rate limit, wait until the oldest request is more than 1 second old
+    if (this.requestTimestamps.length >= this.maxRequestsPerSecond) {
+      const oldestRequest = this.requestTimestamps[0];
+      const waitTime = 1000 - (now - oldestRequest);
+      if (waitTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+      // Clean up again after waiting
+      const afterWait = Date.now();
+      this.requestTimestamps = this.requestTimestamps.filter(t => t > afterWait - 1000);
     }
-    this.lastCallTime = Date.now();
+    
+    // Add a small minimum delay to prevent flooding
+    if (this.requestTimestamps.length > 0) {
+      const lastRequest = this.requestTimestamps[this.requestTimestamps.length - 1];
+      const timeSinceLastRequest = now - lastRequest;
+      if (timeSinceLastRequest < this.minDelay) {
+        await new Promise(resolve => setTimeout(resolve, this.minDelay - timeSinceLastRequest));
+      }
+    }
+    
+    this.requestTimestamps.push(Date.now());
   }
 };
 

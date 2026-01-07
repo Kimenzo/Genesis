@@ -20,27 +20,31 @@ const GenerationTheater: React.FC<GenerationTheaterProps> = ({ progress, status 
         else setCurrentPhase(4);
     }, [progress]);
 
-    // Generate particles periodically
+    // Generate particles periodically and update with requestAnimationFrame
     useEffect(() => {
-        const interval = setInterval(() => {
-            const newParticles = generateParticles(5, window.innerWidth / 2, window.innerHeight / 2, 200, 'sparkle');
-            setParticles(prev => [...prev, ...newParticles].slice(-50)); // Keep max 50 particles
-        }, 500);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // Update particles animation
-    useEffect(() => {
-        const animationFrame = setInterval(() => {
+        let lastGenerationTime = 0;
+        let animationFrameId: number;
+        
+        const animate = (currentTime: number) => {
+            // Generate new particles every 500ms
+            if (currentTime - lastGenerationTime > 500) {
+                const newParticles = generateParticles(5, window.innerWidth / 2, window.innerHeight / 2, 200, 'sparkle');
+                setParticles(prev => [...prev, ...newParticles].slice(-50)); // Keep max 50 particles
+                lastGenerationTime = currentTime;
+            }
+            
+            // Update existing particles every frame
             setParticles(prev =>
                 prev
                     .map(p => updateParticle(p))
                     .filter(p => p.opacity > 0)
             );
-        }, 50);
-
-        return () => clearInterval(animationFrame);
+            
+            animationFrameId = requestAnimationFrame(animate);
+        };
+        
+        animationFrameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animationFrameId);
     }, []);
 
     const getPhaseInfo = (phase: number) => {

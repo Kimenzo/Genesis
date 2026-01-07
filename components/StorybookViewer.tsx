@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookProject } from '../types';
 import { ChevronLeft, ChevronRight, X, Edit3, Download, Share2, Volume2, Maximize2, Minimize2, Sparkles } from 'lucide-react';
@@ -25,38 +25,45 @@ const StorybookViewer: React.FC<StorybookViewerProps> = ({
     const [particles, setParticles] = useState<Particle[]>([]);
     const [direction, setDirection] = useState(1);
 
-    // Flatten all pages from all chapters into a single array for linear navigation
-    const allPages = project.chapters.flatMap(chapter => chapter.pages);
+    // Flatten all pages from all chapters into a single array for linear navigation (memoized)
+    const allPages = useMemo(() => 
+        project.chapters.flatMap(chapter => chapter.pages),
+        [project.chapters]
+    );
     const totalPages = allPages.length;
     const currentPage = allPages[currentPageIndex];
 
-    // Generate floating particles around the book
+    // Generate floating particles around the book using requestAnimationFrame
     useEffect(() => {
-        const interval = setInterval(() => {
-            const newParticles = generateParticles(
-                3,
-                window.innerWidth / 2,
-                window.innerHeight / 2,
-                300,
-                'sparkle'
-            );
-            setParticles(prev => [...prev, ...newParticles].slice(-30));
-        }, 800);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // Update particles animation
-    useEffect(() => {
-        const animationFrame = setInterval(() => {
+        let lastGenerationTime = 0;
+        let animationFrameId: number;
+        
+        const animate = (currentTime: number) => {
+            // Generate new particles every 800ms
+            if (currentTime - lastGenerationTime > 800) {
+                const newParticles = generateParticles(
+                    3,
+                    window.innerWidth / 2,
+                    window.innerHeight / 2,
+                    300,
+                    'sparkle'
+                );
+                setParticles(prev => [...prev, ...newParticles].slice(-30));
+                lastGenerationTime = currentTime;
+            }
+            
+            // Update existing particles every frame
             setParticles(prev =>
                 prev
                     .map(p => updateParticle(p, 0.5))
                     .filter(p => p.opacity > 0)
             );
-        }, 50);
-
-        return () => clearInterval(animationFrame);
+            
+            animationFrameId = requestAnimationFrame(animate);
+        };
+        
+        animationFrameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(animationFrameId);
     }, []);
 
     // Handle keyboard navigation

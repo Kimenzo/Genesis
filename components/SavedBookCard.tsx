@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SavedBook } from '../types';
 import { Edit3, Eye, Trash2, Calendar, FileText } from 'lucide-react';
 
@@ -18,7 +18,10 @@ const SavedBookCard: React.FC<SavedBookCardProps> = ({ book, onEdit, onRead, onD
         }).format(new Date(date));
     };
 
-    const pageCount = book.project.chapters.flatMap(c => c.pages).length;
+    const pageCount = useMemo(() => 
+        book.project.chapters.flatMap(c => c.pages).length,
+        [book.project.chapters]
+    );
 
     return (
         <div className="bg-white rounded-2xl overflow-hidden shadow-soft-md hover:shadow-soft-lg transition-all border border-peach-soft/50 group">
